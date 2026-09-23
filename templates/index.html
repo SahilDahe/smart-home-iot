@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>SmartHome AI — Control Center</title>
+
+  <meta
+    name="description"
+    content="AI-powered smart home automation control center."
+  >
+
+  <meta
+    name="theme-color"
+    content="#05070c"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+  <link
+    rel="stylesheet"
+    href="/static/style.css"
+  >
+
+</head>
+
+
+<body>
+
+
+<!-- ========================================================
+     AMBIENT BACKGROUND
+========================================================= -->
+
+<div class="ambient">
+
+  <div class="ambient-orb orb-a"></div>
+
+  <div class="ambient-orb orb-b"></div>
+
+  <div class="ambient-orb orb-c"></div>
+
+  <div class="grid"></div>
+
+  <div class="grain"></div>
+
+</div>
+
+
+<!-- ========================================================
+     BOOT SCREEN
+========================================================= -->
+
+<div
+  class="boot"
+  id="loader"
+>
+
+  <div class="boot-inner">
+
+    <div class="boot-mark">
+
+      <div class="boot-ring"></div>
+
+      <i data-lucide="home"></i>
+
+    </div>
+
+    <h1>
+      SmartHome
+      <span>AI</span>
+    </h1>
+
+    <p>
+      Intelligent Gesture Automation
+    </p>
+
+    <div class="boot-progress">
+
+      <div
+        id="loader-bar-fill"
+        class="boot-progress-fill"
+      ></div>
+
+    </div>
+
+    <div class="boot-status">
+      INITIALIZING CONTROL SYSTEM
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ========================================================
+     SOS OVERLAY
+========================================================= -->
+
+<div
+  class="sos-overlay"
+  id="sos-overlay"
+  aria-hidden="true"
+>
+
+  <div class="sos-glow"></div>
+
+  <div class="sos-panel">
+
+    <div class="sos-icon">
+
+      <i data-lucide="triangle-alert"></i>
+
+    </div>
+
+    <div class="sos-title">
+      SOS ACTIVATED
+    </div>
+
+    <div class="sos-subtitle">
+      Emergency mode is active
+    </div>
+
+    <div class="sos-status">
+
+      <span>
+        ALL LIGHTS
+      </span>
+
+      <strong>
+        ON
+      </strong>
+
+    </div>
+
+    <button
+      id="sos-dismiss"
+      class="sos-dismiss"
+    >
+      Acknowledge
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ========================================================
+     TOP NAVIGATION
+========================================================= -->
+
+<header class="topbar">
+
+  <div class="brand">
+
+    <div class="brand-icon">
+      <i data-lucide="zap"></i>
+    </div>
+
+    <div>
+
+      <div class="brand-name">
+        SmartHome
+        <span>AI</span>
+      </div>
+
+      <div class="brand-sub">
+        CONTROL CENTER
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="top-center">
+
+    <div
+      id="nav-time"
+      class="clock"
+    >
+      --:--:--
+    </div>
+
+    <div
+      id="nav-date"
+      class="date"
+    >
+      ---
+    </div>
+
+  </div>
+
+
+  <div class="top-status">
+
+    <div
+      class="status-pill"
+      id="pill-wifi"
+    >
+
+      <span class="status-dot"></span>
+
+      <i data-lucide="radio"></i>
+
+      <span>Socket</span>
+
+    </div>
+
+
+    <div
+      class="status-pill"
+      id="pill-esp"
+    >
+
+      <span class="status-dot"></span>
+
+      <i data-lucide="cpu"></i>
+
+      <span>ESP8266</span>
+
+    </div>
+
+
+    <div
+      class="status-pill"
+      id="pill-camera"
+    >
+
+      <span class="status-dot"></span>
+
+      <i data-lucide="camera"></i>
+
+      <span>Camera</span>
+
+    </div>
+
+  </div>
+
+</header>
+
+
+<!-- ========================================================
+     MAIN DASHBOARD
+========================================================= -->
+
+<main class="shell">
+
+
+  <!-- ======================================================
+       CAMERA / GESTURE VISION
+  ======================================================= -->
+
+  <section class="camera-panel glass">
+
+    <div class="section-head">
+
+      <div>
+
+        <div class="eyebrow">
+          LIVE VISION
+        </div>
+
+        <h2>
+          Gesture Control
+        </h2>
+
+        <p>
+          Hold a supported gesture for three seconds
+          to execute a command.
+        </p>
+
+      </div>
+
+      <div class="camera-status">
+
+        <span class="live-dot"></span>
+
+        LIVE
+
+      </div>
+
+    </div>
+
+
+    <div class="camera-frame">
+
+      <div
+        class="camera-placeholder"
+        id="cam-placeholder"
+      >
+
+        <div class="placeholder-icon">
+          <i data-lucide="camera-off"></i>
+        </div>
+
+        <div>
+
+          <strong>
+            Connecting camera
+          </strong>
+
+          <span>
+            Waiting for live feed...
+          </span>
+
+        </div>
+
+        <button
+          class="secondary-btn"
+          id="btn-reconnect-cam"
+        >
+
+          <i data-lucide="refresh-cw"></i>
+
+          Reconnect
+
+        </button>
+
+      </div>
+
+
+      <img
+        src=""
+        id="camera-feed"
+        class="camera-feed"
+        alt="Live hand gesture recognition feed"
+      >
+
+
+      <div class="camera-overlay">
+
+        <div class="camera-top-left">
+
+          <div class="hud-chip">
+
+            <span class="live-dot"></span>
+
+            AI VISION
+
+          </div>
+
+        </div>
+
+
+        <div class="camera-top-right">
+
+          <div class="hud-chip">
+
+            <span id="cam-fps">
+              --
+            </span>
+
+            FPS
+
+          </div>
+
+        </div>
+
+
+        <div class="camera-bottom">
+
+          <div>
+
+            <span class="hud-label">
+              DETECTED GESTURE
+            </span>
+
+            <strong id="overlay-gesture">
+              NONE
+            </strong>
+
+          </div>
+
+
+          <div class="resolution">
+            640 × 480
+          </div>
+
+        </div>
+
+
+        <div class="scan"></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Gesture command legend -->
+
+    <div class="gesture-strip">
+
+      <div
+        class="gesture-chip"
+        data-gesture="INDEX"
+      >
+
+        <span>1</span>
+
+        Light 1
+
+      </div>
+
+
+      <div
+        class="gesture-chip"
+        data-gesture="TWO"
+      >
+
+        <span>2</span>
+
+        Light 2
+
+      </div>
+
+
+      <div
+        class="gesture-chip"
+        data-gesture="THREE"
+      >
+
+        <span>3</span>
+
+        Fan
+
+      </div>
+
+
+      <div
+        class="gesture-chip"
+        data-gesture="FOUR"
+      >
+
+        <span>4</span>
+
+        Pump
+
+      </div>
+
+
+      <div
+        class="gesture-chip"
+        data-gesture="FIST"
+      >
+
+        <span>✊</span>
+
+        Lock
+
+      </div>
+
+
+      <div
+        class="gesture-chip"
+        data-gesture="THUMB_DOWN"
+      >
+
+        <span>↓</span>
+
+        Unlock
+
+      </div>
+
+    </div>
+
+
+    <!-- SOS legend -->
+
+    <div class="sos-legend">
+
+      <div class="sos-legend-icon">
+
+        <i data-lucide="triangle-alert"></i>
+
+      </div>
+
+      <div>
+
+        <strong>
+          SOS gesture
+        </strong>
+
+        <span>
+          Palm → Fist → Palm → Fist
+        </span>
+
+      </div>
+
+      <b>
+        3 sec sequence
+      </b>
+
+    </div>
+
+  </section>
+
+
+  <!-- ======================================================
+       RIGHT COLUMN
+  ======================================================= -->
+
+  <aside class="right-column">
+
+
+    <!-- HOUSE STATUS -->
+
+    <section class="module glass">
+
+      <div class="module-title-row">
+
+        <div class="module-title-icon blue">
+
+          <i data-lucide="home"></i>
+
+        </div>
+
+        <div>
+
+          <h3>
+            House Status
+          </h3>
+
+          <span>
+            Live environment
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="metrics">
+
+        <div class="metric">
+
+          <div class="metric-icon">
+            <i data-lucide="thermometer"></i>
+          </div>
+
+          <div>
+
+            <span>
+              Temperature
+            </span>
+
+            <strong id="stat-temp">
+              24°C
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="metric">
+
+          <div class="metric-icon">
+            <i data-lucide="droplets"></i>
+          </div>
+
+          <div>
+
+            <span>
+              Humidity
+            </span>
+
+            <strong id="stat-humidity">
+              60%
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="metric">
+
+          <div class="metric-icon">
+            <i data-lucide="hand"></i>
+          </div>
+
+          <div>
+
+            <span>
+              Gesture
+            </span>
+
+            <strong
+              id="stat-gesture"
+              class="accent"
+            >
+              NONE
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="metric">
+
+          <div class="metric-icon">
+            <i data-lucide="lock"></i>
+          </div>
+
+          <div>
+
+            <span>
+              Door
+            </span>
+
+            <strong
+              id="stat-door"
+              class="success"
+            >
+              LOCKED
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="metric">
+
+          <div class="metric-icon">
+            <i data-lucide="cpu"></i>
+          </div>
+
+          <div>
+
+            <span>
+              ESP8266
+            </span>
+
+            <strong id="stat-esp">
+              OFFLINE
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="metric">
+
+          <div class="metric-icon">
+            <i data-lucide="activity"></i>
+          </div>
+
+          <div>
+
+            <span>
+              Motion
+            </span>
+
+            <strong id="stat-motion">
+              CLEAR
+            </strong>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- GESTURE ENGINE -->
+
+    <section class="module glass hold-module">
+
+      <div class="module-title-row">
+
+        <div class="module-title-icon purple">
+
+          <i data-lucide="scan-hand"></i>
+
+        </div>
+
+        <div>
+
+          <h3>
+            Gesture Engine
+          </h3>
+
+          <span id="gesture-phase-label">
+            Ready for input
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="hold-card">
+
+        <div class="hold-top">
+
+          <div>
+
+            <span class="hold-caption">
+              CURRENT GESTURE
+            </span>
+
+            <strong id="gesture-name">
+              NONE
+            </strong>
+
+          </div>
+
+
+          <div
+            id="gesture-conf-pct"
+            class="hold-percent"
+          >
+            0%
+          </div>
+
+        </div>
+
+
+        <div class="hold-progress-track">
+
+          <div
+            id="gesture-conf-fill"
+            class="hold-progress-fill"
+          ></div>
+
+        </div>
+
+
+        <div class="hold-meta">
+
+          <span>
+
+            <i data-lucide="timer"></i>
+
+            Hold duration: 3 seconds
+
+          </span>
+
+
+          <span
+            id="gesture-last"
+          >
+            —
+          </span>
+
+        </div>
+
+
+        <div
+          class="hold-action"
+          id="gesture-action"
+        >
+          Show a gesture to begin
+        </div>
+
+      </div>
+
+
+      <div class="gesture-wave">
+
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+
+      </div>
+
+    </section>
+
+
+    <!-- SMART DEVICES -->
+
+    <section class="module glass">
+
+      <div class="module-title-row">
+
+        <div class="module-title-icon cyan">
+
+          <i data-lucide="sliders-horizontal"></i>
+
+        </div>
+
+        <div>
+
+          <h3>
+            Smart Devices
+          </h3>
+
+          <span id="devices-active-count">
+            0 of 5 active
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="device-list">
+
+
+        <div
+          class="device"
+          id="row-light1"
+        >
+
+          <div class="device-icon">
+            <i data-lucide="lightbulb"></i>
+          </div>
+
+          <div class="device-copy">
+
+            <strong>
+              Living Room Light
+            </strong>
+
+            <span id="label-light1">
+              OFF
+            </span>
+
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="toggle-light1"
+              onchange="toggleDevice('light1', this.checked)"
+            >
+
+            <span class="slider"></span>
+
+          </label>
+
+        </div>
+
+
+        <div
+          class="device"
+          id="row-light2"
+        >
+
+          <div class="device-icon">
+            <i data-lucide="lamp-desk"></i>
+          </div>
+
+          <div class="device-copy">
+
+            <strong>
+              Bedroom Light
+            </strong>
+
+            <span id="label-light2">
+              OFF
+            </span>
+
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="toggle-light2"
+              onchange="toggleDevice('light2', this.checked)"
+            >
+
+            <span class="slider"></span>
+
+          </label>
+
+        </div>
+
+
+        <div
+          class="device"
+          id="row-fan"
+        >
+
+          <div class="device-icon">
+            <i data-lucide="fan"></i>
+          </div>
+
+          <div class="device-copy">
+
+            <strong>
+              Smart Fan
+            </strong>
+
+            <span id="label-fan">
+              OFF
+            </span>
+
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="toggle-fan"
+              onchange="toggleDevice('fan', this.checked)"
+            >
+
+            <span class="slider"></span>
+
+          </label>
+
+        </div>
+
+
+        <div
+          class="device"
+          id="row-pump"
+        >
+
+          <div class="device-icon">
+            <i data-lucide="droplet"></i>
+          </div>
+
+          <div class="device-copy">
+
+            <strong>
+              Water Pump
+            </strong>
+
+            <span id="label-pump">
+              OFF
+            </span>
+
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="toggle-pump"
+              onchange="toggleDevice('pump', this.checked)"
+            >
+
+            <span class="slider"></span>
+
+          </label>
+
+        </div>
+
+
+        <div
+          class="device door"
+          id="row-door"
+        >
+
+          <div class="device-icon">
+            <i data-lucide="lock"></i>
+          </div>
+
+          <div class="device-copy">
+
+            <strong>
+              Smart Door Lock
+            </strong>
+
+            <span id="label-door">
+              LOCKED
+            </span>
+
+          </div>
+
+          <label
+            class="switch door-switch"
+          >
+
+            <input
+              type="checkbox"
+              id="toggle-door"
+              onchange="toggleDoor(this.checked)"
+            >
+
+            <span class="slider"></span>
+
+          </label>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- SECURITY -->
+
+    <section
+      class="module glass security"
+      id="security-module"
+    >
+
+      <div class="module-title-row">
+
+        <div
+          class="module-title-icon green"
+          id="security-icon-wrap"
+        >
+
+          <i data-lucide="shield-check"></i>
+
+        </div>
+
+        <div>
+
+          <h3>
+            Security
+          </h3>
+
+          <span id="security-sub">
+            All systems normal
+          </span>
+
+        </div>
+
+        <div
+          class="security-badge normal"
+          id="security-badge"
+        >
+          NORMAL
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ACTIVITY -->
+
+    <section class="module glass activity-module">
+
+      <div class="module-title-row">
+
+        <div class="module-title-icon orange">
+
+          <i data-lucide="activity"></i>
+
+        </div>
+
+        <div>
+
+          <h3>
+            Activity
+          </h3>
+
+          <span>
+            Recent events
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="timeline"
+        id="timeline"
+      >
+
+        <div
+          class="timeline-empty"
+          id="timeline-empty"
+        >
+
+          <i data-lucide="clock"></i>
+
+          <span>
+            Waiting for events...
+          </span>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </aside>
+
+</main>
+
+
+<!-- ========================================================
+     QUICK ACTIONS
+========================================================= -->
+
+<div class="quick-actions">
+
+  <div
+    class="quick-items"
+    id="fab-items"
+  >
+
+    <button
+      class="quick-btn"
+      id="fab-fullscreen"
+      title="Fullscreen"
+    >
+
+      <i data-lucide="maximize"></i>
+
+    </button>
+
+
+    <button
+      class="quick-btn danger"
+      id="fab-stop"
+      title="Emergency stop"
+    >
+
+      <i data-lucide="octagon"></i>
+
+    </button>
+
+  </div>
+
+
+  <button
+    class="quick-main"
+    id="fab-main"
+    aria-label="Quick actions"
+  >
+
+    <i data-lucide="plus"></i>
+
+  </button>
+
+</div>
+
+
+<script src="/static/script.js"></script>
+
+</body>
+</html>
